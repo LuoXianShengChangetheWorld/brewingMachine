@@ -17,6 +17,7 @@ public interface QrCodeLoginMapper {
      */
     int insert(QrCodeLogin qrCodeLogin);
 
+
     /**
      * 根据token查询
      */

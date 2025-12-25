@@ -23,11 +23,9 @@
     <!-- 插入二维码登录记录 -->
     <insert id="insert" parameterType="com.brewingmachine.entity.QrCodeLogin" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO qr_code_login (
-            qr_token, status, user_id, user_info, 
-            create_time, expire_time, scan_time, confirm_time
+            qr_token, status, create_time, expire_time
         ) VALUES (
-            #{qrToken}, #{status}, #{userId}, #{userInfo},
-            #{createTime}, #{expireTime}, #{scanTime}, #{confirmTime}
+            #{qrToken}, #{status}, #{createTime}, #{expireTime}
         )
     </insert>
 

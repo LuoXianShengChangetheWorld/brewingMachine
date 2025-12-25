@@ -40,19 +40,19 @@
         </dependency>
 
         <!-- MySQL Driver - 适配MySQL 5.7 -->
-<!--        <dependency>-->
-<!--            <groupId>mysql</groupId>-->
-<!--            <artifactId>mysql-connector-java</artifactId>-->
-<!--            <version>8.0.33</version>-->
-<!--        </dependency>-->
-
-        <!-- 或者使用这个版本，对MySQL 5.7兼容性更好 -->
-
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.49</version>
+            <version>8.0.33</version>
         </dependency>
+
+        <!-- 或者使用这个版本，对MySQL 5.7兼容性更好 -->
+
+<!--        <dependency>-->
+<!--            <groupId>mysql</groupId>-->
+<!--            <artifactId>mysql-connector-java</artifactId>-->
+<!--            <version>5.1.49</version>-->
+<!--        </dependency>-->
 
 
         <!-- Redis -->
@@ -104,7 +104,7 @@
     <build>
         <plugins>
             <plugin>
-<!--                <groupId>org.springframework.boot</groupId>-->
+                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <excludes>

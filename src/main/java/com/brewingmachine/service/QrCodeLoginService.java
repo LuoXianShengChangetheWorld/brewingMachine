@@ -46,7 +46,7 @@ public class QrCodeLoginService {
             qrCodeLogin.setCreateTime(LocalDateTime.now());
             qrCodeLogin.setExpireTime(LocalDateTime.now().plusSeconds(expireSeconds));
             
-            qrCodeLoginMapper.insert(qrCodeLogin);
+//            qrCodeLoginMapper.insert(qrCodeLogin);
 
             // 生成二维码内容（前端扫码后会跳转到这个地址）
             String qrContent = String.format("brewingmachine://login?token=%s", qrToken);

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维码登录 - 智能售酒机平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .qr-code-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qr-code-image {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            border: 5px solid white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-text {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .status-text.scanning {
+            color: #ff9800;
+        }
+
+        .status-text.confirmed {
+            color: #4caf50;
+        }
+
+        .status-text.expired {
+            color: #f44336;
+        }
+
+        .refresh-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #f44336;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #4caf50;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>扫码登录</h1>
+        <p class="subtitle">使用手机APP扫描二维码完成登录</p>
+        
+        <div class="qr-code-container">
+            <div id="qrCodeImageContainer">
+                <div class="loading"></div>
+            </div>
+            <div id="statusText" class="status-text">正在生成二维码...</div>
+            <div id="messageContainer"></div>
+        </div>
+
+        <button class="refresh-btn" onclick="generateQrCode()">刷新二维码</button>
+    </div>
+
+    <script>
+        const API_BASE = '/api/qr/login';
+        let qrToken = null;
+        let pollingInterval = null;
+
+        // 生成二维码
+        async function generateQrCode() {
+            try {
+                // 清除之前的轮询
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+
+                // 显示加载状态
+                document.getElementById('qrCodeImageContainer').innerHTML = '<div class="loading"></div>';
+                document.getElementById('statusText').textContent = '正在生成二维码...';
+                document.getElementById('statusText').className = 'status-text';
+                document.getElementById('messageContainer').innerHTML = '';
+
+                // 请求生成二维码
+                const response = await fetch(API_BASE + '/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.qrToken && data.qrCodeImage) {
+                    qrToken = data.qrToken;
+                    
+                    // 显示二维码
+                    document.getElementById('qrCodeImageContainer').innerHTML = 
+                        `<img src="${data.qrCodeImage}" alt="二维码" class="qr-code-image">`;
+                    document.getElementById('statusText').textContent = '等待扫描';
+                    document.getElementById('statusText').className = 'status-text';
+
+                    // 开始轮询状态
+                    startPolling();
+                } else {
+                    throw new Error(data.message || '生成二维码失败');
+                }
+            } catch (error) {
+                console.error('生成二维码失败:', error);
+                document.getElementById('qrCodeImageContainer').innerHTML = 
+                    '<div class="error-message">生成二维码失败，请重试</div>';
+                document.getElementById('statusText').textContent = '';
+            }
+        }
+
+        // 开始轮询状态
+        function startPolling() {
+            // 立即查询一次
+            checkStatus();
+
+            // 每2秒查询一次
+            pollingInterval = setInterval(checkStatus, 2000);
+        }
+
+        // 检查二维码状态
+        async function checkStatus() {
+            if (!qrToken) {
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE + '/status/' + qrToken);
+                const data = await response.json();
+
+                const statusText = document.getElementById('statusText');
+                const messageContainer = document.getElementById('messageContainer');
+
+                switch (data.status) {
+                    case 0: // 未扫描
+                        statusText.textContent = '等待扫描';
+                        statusText.className = 'status-text';
+                        messageContainer.innerHTML = '';
+                        break;
+
+                    case 1: // 已扫描未确认
+                        statusText.textContent = '已扫描，等待确认';
+                        statusText.className = 'status-text scanning';
+                        messageContainer.innerHTML = '<div class="success-message">请在手机上确认登录</div>';
+                        break;
+
+                    case 2: // 已确认登录
+                        statusText.textContent = '登录成功';
+                        statusText.className = 'status-text confirmed';
+                        messageContainer.innerHTML = '<div class="success-message">登录成功！正在跳转...</div>';
+                        
+                        // 停止轮询
+                        clearInterval(pollingInterval);
+                        
+                        // 保存用户信息到localStorage
+                        if (data.userInfo) {
+                            localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
+                            localStorage.setItem('userId', data.userId);
+                        }
+
+                        // 延迟跳转
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html'; // 跳转到主页或仪表板
+                        }, 1500);
+                        break;
+
+                    case 3: // 已过期
+                    case -1: // 不存在
+                        statusText.textContent = data.message || '二维码已过期';
+                        statusText.className = 'status-text expired';
+                        messageContainer.innerHTML = '<div class="error-message">二维码已过期，请刷新</div>';
+                        
+                        // 停止轮询
+                        clearInterval(pollingInterval);
+                        break;
+
+                    default:
+                        console.warn('未知状态:', data.status);
+                }
+            } catch (error) {
+                console.error('查询状态失败:', error);
+            }
+        }
+
+        // 页面加载时生成二维码
+        window.onload = function() {
+            generateQrCode();
+        };
+    </script>
+</body>
+</html>
+

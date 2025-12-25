@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.QrCodeLoginMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.brewingmachine.entity.QrCodeLogin">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="qr_token" property="qrToken" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="user_info" property="userInfo" jdbcType="LONGVARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP"/>
+        <result column="scan_time" property="scanTime" jdbcType="TIMESTAMP"/>
+        <result column="confirm_time" property="confirmTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, qr_token, status, user_id, user_info, create_time, expire_time, scan_time, confirm_time
+    </sql>
+
+    <!-- 插入二维码登录记录 -->
+    <insert id="insert" parameterType="com.brewingmachine.entity.QrCodeLogin" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO qr_code_login (
+            qr_token, status, user_id, user_info, 
+            create_time, expire_time, scan_time, confirm_time
+        ) VALUES (
+            #{qrToken}, #{status}, #{userId}, #{userInfo},
+            #{createTime}, #{expireTime}, #{scanTime}, #{confirmTime}
+        )
+    </insert>
+
+    <!-- 根据token查询 -->
+    <select id="findByQrToken" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM qr_code_login
+        WHERE qr_token = #{qrToken}
+    </select>
+
+    <!-- 更新二维码状态 -->
+    <update id="updateStatusByToken">
+        UPDATE qr_code_login
+        SET status = #{status}
+        WHERE qr_token = #{qrToken}
+    </update>
+
+    <!-- 确认登录 -->
+    <update id="confirmLogin">
+        UPDATE qr_code_login
+        SET status = 2,
+            user_id = #{userId},
+            user_info = #{userInfo},
+            confirm_time = #{confirmTime}
+        WHERE qr_token = #{qrToken}
+    </update>
+
+    <!-- 扫描二维码 -->
+    <update id="scanQrCode">
+        UPDATE qr_code_login
+        SET status = 1,
+            scan_time = #{scanTime}
+        WHERE qr_token = #{qrToken}
+          AND status = 0
+    </update>
+
+    <!-- 清理过期数据 -->
+    <delete id="deleteExpiredQrCodes">
+        DELETE FROM qr_code_login
+        WHERE expire_time &lt; #{now}
+    </delete>
+
+</mapper>
+

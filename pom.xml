@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
+        <version>2.7.14</version>
         <relativePath/>
     </parent>
 
@@ -16,7 +16,7 @@
     <artifactId>brewing-machine</artifactId>
     <version>1.0.0</version>
     <name>brewing-machine</name>
-    <description>智能售酒机平�?/description>
+    <description>智能售酒机平台</description>
 
     <properties>
         <java.version>1.8</java.version>
@@ -39,20 +39,29 @@
             <version>2.3.1</version>
         </dependency>
 
-        <!-- MySQL Driver -->
+        <!-- MySQL Driver - 适配MySQL 5.7 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
         </dependency>
 
-        <!-- Redis (用于存储二维码临时数�? -->
+        <!-- 或者使用这个版本，对MySQL 5.7兼容性更好 -->
+        <!--
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.49</version>
+        </dependency>
+        -->
+
+        <!-- Redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
-        <!-- 二维码生�?-->
+        <!-- 二维码生成 -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
@@ -78,7 +87,7 @@
             <version>1.2.83</version>
         </dependency>
 
-        <!-- 工具�?-->
+        <!-- 工具类 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

@@ -45,5 +45,6 @@ public interface QrCodeLoginMapper {
      * 清理过期数据
      */
     int deleteExpiredQrCodes(@Param("now") LocalDateTime now);
+
 }
 

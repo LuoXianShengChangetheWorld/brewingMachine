@@ -33,7 +33,7 @@ public class QrCodeLoginService {
     /**
      * 生成二维码
      */
-    @Transactional
+//    @Transactional
     public Map<String, Object> generateQrCode() {
         try {
             // 生成唯一token

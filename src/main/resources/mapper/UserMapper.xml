@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.brewingmachine.entity.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="nickname" property="nickname"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="avatar" property="avatar"/>
+        <result column="gender" property="gender"/>
+        <result column="status" property="status"/>
+        <result column="parent_user_id" property="parentUserId"/>
+        <result column="balance" property="balance"/>
+        <result column="points" property="points"/>
+        <result column="gift_money" property="giftMoney"/>
+        <result column="wine_gold" property="wineGold"/>
+        <result column="total_consumption" property="totalConsumption"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="token" property="token"/>
+        <result column="token_expire_time" property="tokenExpireTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, username, password, nickname, phone, email, avatar, gender, status, parent_user_id, 
+        balance, points, gift_money, wine_gold, total_consumption, create_time, update_time, 
+        last_login_time, token, token_expire_time
+    </sql>
+
+    <insert id="insert" parameterType="com.brewingmachine.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (username, password, nickname, phone, email, avatar, gender, status, 
+                          parent_user_id, balance, points, gift_money, wine_gold, total_consumption, 
+                          create_time, update_time)
+        VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email}, #{avatar}, #{gender}, #{status},
+                #{parentUserId}, #{balance}, #{points}, #{giftMoney}, #{wineGold}, #{totalConsumption},
+                #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE username = #{username}
+    </select>
+
+    <select id="findByPhone" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE phone = #{phone}
+    </select>
+
+    <update id="update" parameterType="com.brewingmachine.entity.User">
+        UPDATE user
+        <set>
+            <if test="password != null">password = #{password},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="parentUserId != null">parent_user_id = #{parentUserId},</if>
+            <if test="balance != null">balance = #{balance},</if>
+            <if test="points != null">points = #{points},</if>
+            <if test="giftMoney != null">gift_money = #{giftMoney},</if>
+            <if test="wineGold != null">wine_gold = #{wineGold},</if>
+            <if test="totalConsumption != null">total_consumption = #{totalConsumption},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="lastLoginTime != null">last_login_time = #{lastLoginTime},</if>
+            <if test="token != null">token = #{token},</if>
+            <if test="tokenExpireTime != null">token_expire_time = #{tokenExpireTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateLastLoginTime">
+        UPDATE user
+        SET last_login_time = #{lastLoginTime}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateToken">
+        UPDATE user
+        SET token = #{token}, token_expire_time = #{expireTime}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateTokenExpireTime">
+        UPDATE user
+        SET token_expire_time = #{expireTime}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearToken">
+        UPDATE user
+        SET token = NULL, token_expire_time = NULL, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

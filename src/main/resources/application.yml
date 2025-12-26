@@ -9,19 +9,19 @@ spring:
   
   # 数据源配置
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/brewing_machine?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.3.191:3306/brewing_machine
     username: root
     password: 123456
   
   # MyBatis配置
-  mybatis:
-    mapper-locations: classpath:mapper/*.xml
-    type-aliases-package: com.brewingmachine.entity
-    configuration:
-      map-underscore-to-camel-case: true
-      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.brewingmachine.entity
+  configuration:
+  map-underscore-to-camel-case: true
+  log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#
   # Redis配置（可选，如果不使用Redis可注释掉）
 #  redis:
 #    host: localhost
@@ -43,9 +43,23 @@ qr:
     width: 300
     height: 300
 
+# 微信登录配置
+wechat:
+  app-id: your_app_id              # 微信开放平台AppID
+  app-secret: your_app_secret      # 微信开放平台AppSecret
+  redirect-uri: http://localhost:8080/api/wechat/callback  # 回调地址
+  scope: snsapi_login              # 授权作用域
+  state: STATE                     # 状态标识
+
 # 日志配置
 logging:
   level:
     com.brewingmachine: DEBUG
     org.springframework.web: INFO
+    org.mybatis: DEBUG
+    java.sql: DEBUG
+    java.sql.Connection: DEBUG
+    java.sql.Statement: DEBUG
+    java.sql.PreparedStatement: DEBUG
+    java.sql.ResultSet: DEBUG
 

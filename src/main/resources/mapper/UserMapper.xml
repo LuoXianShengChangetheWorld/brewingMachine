@@ -58,6 +58,12 @@
         WHERE phone = #{phone}
     </select>
 
+    <select id="findByToken" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE token = #{token}
+    </select>
+
     <update id="update" parameterType="com.brewingmachine.entity.User">
         UPDATE user
         <set>

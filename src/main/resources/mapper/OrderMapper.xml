@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.OrderMapper">
+
+    <resultMap id="OrderResultMap" type="com.brewingmachine.entity.Order">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="orderId" column="order_id" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="deviceId" column="device_id" jdbcType="BIGINT"/>
+        <result property="slotId" column="slot_id" jdbcType="BIGINT"/>
+        <result property="goodsId" column="goods_id" jdbcType="BIGINT"/>
+        <result property="goodsName" column="goods_name" jdbcType="VARCHAR"/>
+        <result property="capacity" column="capacity" jdbcType="INTEGER"/>
+        <result property="price" column="price" jdbcType="DECIMAL"/>
+        <result property="quantity" column="quantity" jdbcType="INTEGER"/>
+        <result property="totalAmount" column="total_amount" jdbcType="DECIMAL"/>
+        <result property="couponId" column="coupon_id" jdbcType="BIGINT"/>
+        <result property="couponAmount" column="coupon_amount" jdbcType="DECIMAL"/>
+        <result property="payAmount" column="pay_amount" jdbcType="DECIMAL"/>
+        <result property="payType" column="pay_type" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="payTime" column="pay_time" jdbcType="TIMESTAMP"/>
+        <result property="completeTime" column="complete_time" jdbcType="TIMESTAMP"/>
+        <result property="refundTime" column="refund_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="orderColumns">
+        id, order_id, user_id, device_id, slot_id, goods_id, goods_name, capacity, 
+        price, quantity, total_amount, coupon_id, coupon_amount, pay_amount, 
+        pay_type, status, pay_time, complete_time, refund_time, remark, create_time, update_time
+    </sql>
+
+    <select id="findById" parameterType="java.lang.Long" resultMap="OrderResultMap">
+        SELECT <include refid="orderColumns"/>
+        FROM `order`
+        WHERE id = #{id, jdbcType=BIGINT}
+    </select>
+
+    <select id="findByOrderId" parameterType="java.lang.String" resultMap="OrderResultMap">
+        SELECT <include refid="orderColumns"/>
+        FROM `order`
+        WHERE order_id = #{orderId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="findByUserId" parameterType="java.lang.Long" resultMap="OrderResultMap">
+        SELECT <include refid="orderColumns"/>
+        FROM `order`
+        WHERE user_id = #{userId, jdbcType=BIGINT}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="findByUserIdWithPage" resultMap="OrderResultMap">
+        SELECT <include refid="orderColumns"/>
+        FROM `order`
+        WHERE user_id = #{userId, jdbcType=BIGINT}
+        <if test="status != null and status != ''">
+            AND status = #{status, jdbcType=VARCHAR}
+        </if>
+        ORDER BY create_time DESC
+        <if test="page != null and size != null">
+            LIMIT #{size, jdbcType=INTEGER} OFFSET #{page, jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="findByAgentWithPage" resultMap="OrderResultMap">
+        SELECT <include refid="orderColumns"/>
+        FROM `order`
+        WHERE 1=1
+        <if test="userId != null">
+            AND user_id = #{userId, jdbcType=BIGINT}
+        </if>
+        <if test="storeId != null">
+            AND device_id IN (
+                SELECT id FROM device WHERE store_id = #{storeId, jdbcType=BIGINT}
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status, jdbcType=VARCHAR}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            AND create_time >= #{startTime, jdbcType=VARCHAR}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND create_time &lt;= #{endTime, jdbcType=VARCHAR}
+        </if>
+        ORDER BY create_time DESC
+        <if test="page != null and size != null">
+            LIMIT #{size, jdbcType=INTEGER} OFFSET #{page, jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countByUserId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `order`
+        WHERE user_id = #{userId, jdbcType=BIGINT}
+        <if test="status != null and status != ''">
+            AND status = #{status, jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="countByAgent" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `order`
+        WHERE 1=1
+        <if test="userId != null">
+            AND user_id = #{userId, jdbcType=BIGINT}
+        </if>
+        <if test="storeId != null">
+            AND device_id IN (
+                SELECT id FROM device WHERE store_id = #{storeId, jdbcType=BIGINT}
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status, jdbcType=VARCHAR}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            AND create_time >= #{startTime, jdbcType=VARCHAR}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND create_time &lt;= #{endTime, jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.brewingmachine.entity.Order" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `order` (
+            order_id, user_id, device_id, slot_id, goods_id, goods_name, capacity, 
+            price, quantity, total_amount, coupon_id, coupon_amount, pay_amount, 
+            pay_type, status, remark, create_time, update_time
+        ) VALUES (
+            #{orderId, jdbcType=VARCHAR}, #{userId, jdbcType=BIGINT}, #{deviceId, jdbcType=BIGINT}, 
+            #{slotId, jdbcType=BIGINT}, #{goodsId, jdbcType=BIGINT}, #{goodsName, jdbcType=VARCHAR}, 
+            #{capacity, jdbcType=INTEGER}, #{price, jdbcType=DECIMAL}, #{quantity, jdbcType=INTEGER}, 
+            #{totalAmount, jdbcType=DECIMAL}, #{couponId, jdbcType=BIGINT}, #{couponAmount, jdbcType=DECIMAL}, 
+            #{payAmount, jdbcType=DECIMAL}, #{payType, jdbcType=VARCHAR}, #{status, jdbcType=VARCHAR}, 
+            #{remark, jdbcType=VARCHAR}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.brewingmachine.entity.Order">
+        UPDATE `order`
+        SET
+            <if test="orderId != null">order_id = #{orderId, jdbcType=VARCHAR},</if>
+            <if test="userId != null">user_id = #{userId, jdbcType=BIGINT},</if>
+            <if test="deviceId != null">device_id = #{deviceId, jdbcType=BIGINT},</if>
+            <if test="slotId != null">slot_id = #{slotId, jdbcType=BIGINT},</if>
+            <if test="goodsId != null">goods_id = #{goodsId, jdbcType=BIGINT},</if>
+            <if test="goodsName != null">goods_name = #{goodsName, jdbcType=VARCHAR},</if>
+            <if test="capacity != null">capacity = #{capacity, jdbcType=INTEGER},</if>
+            <if test="price != null">price = #{price, jdbcType=DECIMAL},</if>
+            <if test="quantity != null">quantity = #{quantity, jdbcType=INTEGER},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount, jdbcType=DECIMAL},</if>
+            <if test="couponId != null">coupon_id = #{couponId, jdbcType=BIGINT},</if>
+            <if test="couponAmount != null">coupon_amount = #{couponAmount, jdbcType=DECIMAL},</if>
+            <if test="payAmount != null">pay_amount = #{payAmount, jdbcType=DECIMAL},</if>
+            <if test="payType != null">pay_type = #{payType, jdbcType=VARCHAR},</if>
+            <if test="status != null">status = #{status, jdbcType=VARCHAR},</if>
+            <if test="payTime != null">pay_time = #{payTime, jdbcType=TIMESTAMP},</if>
+            <if test="completeTime != null">complete_time = #{completeTime, jdbcType=TIMESTAMP},</if>
+            <if test="refundTime != null">refund_time = #{refundTime, jdbcType=TIMESTAMP},</if>
+            <if test="remark != null">remark = #{remark, jdbcType=VARCHAR},</if>
+            update_time = NOW()
+        WHERE id = #{id, jdbcType=BIGINT}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE `order`
+        SET
+            status = #{status, jdbcType=VARCHAR},
+            <if test="payTime != null">
+                pay_time = #{payTime, jdbcType=TIMESTAMP},
+            </if>
+            update_time = NOW()
+        WHERE order_id = #{orderId, jdbcType=VARCHAR}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM `order`
+        WHERE id = #{id, jdbcType=BIGINT}
+    </delete>
+
+</mapper>

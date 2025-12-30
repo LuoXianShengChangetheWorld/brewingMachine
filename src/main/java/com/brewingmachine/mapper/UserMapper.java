@@ -17,6 +17,8 @@ public interface UserMapper {
 
     User findByPhone(@Param("phone") String phone);
 
+    User findByToken(@Param("token") String token);
+
     int update(User user);
 
     int updateLastLoginTime(@Param("id") Long id, @Param("lastLoginTime") LocalDateTime lastLoginTime);

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.StoreMapper">
+
+    <resultMap id="BaseResultMap" type="com.brewingmachine.entity.Store">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="address" property="address"/>
+        <result column="latitude" property="latitude"/>
+        <result column="longitude" property="longitude"/>
+        <result column="cover" property="cover"/>
+        <result column="status" property="status"/>
+        <result column="owner_id" property="ownerId"/>
+        <result column="agent_id" property="agentId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, address, latitude, longitude, cover, status, owner_id, agent_id, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.brewingmachine.entity.Store" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO store (name, address, latitude, longitude, cover, status, owner_id, agent_id, create_time, update_time)
+        VALUES (#{name}, #{address}, #{latitude}, #{longitude}, #{cover}, #{status}, #{ownerId}, #{agentId}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM store
+        WHERE id = #{id}
+    </select>
+
+    <select id="findList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM store
+        WHERE status = 1
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%') OR address LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY id DESC
+        <if test="page != null and size != null">
+            LIMIT #{page}, #{size}
+        </if>
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*)
+        FROM store
+        WHERE status = 1
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%') OR address LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <update id="update" parameterType="com.brewingmachine.entity.Store">
+        UPDATE store
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="cover != null">cover = #{cover},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="agentId != null">agent_id = #{agentId},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM store WHERE id = #{id}
+    </delete>
+
+</mapper>

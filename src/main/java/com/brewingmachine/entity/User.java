@@ -25,25 +25,27 @@ public class User {
 
     private Integer status;
 
+    private String role;
+
     private Long parentUserId;
 
     private BigDecimal balance;
 
+    private BigDecimal frozen;
+
     private Long points;
 
-    private BigDecimal giftMoney;
+    private BigDecimal totalRecharge;
 
-    private BigDecimal wineGold;
-
-    private BigDecimal totalConsumption;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
-
-    private LocalDateTime lastLoginTime;
+    private BigDecimal totalWithdraw;
 
     private String token;
 
     private LocalDateTime tokenExpireTime;
+
+    private LocalDateTime lastLoginTime;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

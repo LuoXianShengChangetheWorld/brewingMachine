@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.DeviceSlotMapper">
+
+    <resultMap id="BaseResultMap" type="com.brewingmachine.entity.DeviceSlot">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="device_id" property="deviceId" jdbcType="BIGINT"/>
+        <result column="slot_id" property="slotId" jdbcType="VARCHAR"/>
+        <result column="goods_id" property="goodsId" jdbcType="BIGINT"/>
+        <result column="price_id" property="priceId" jdbcType="BIGINT"/>
+        <result column="capacity" property="capacity" jdbcType="INTEGER"/>
+        <result column="price" property="price" jdbcType="DECIMAL"/>
+        <result column="stock" property="stock" jdbcType="INTEGER"/>
+        <result column="locked" property="locked" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, device_id, slot_id, goods_id, price_id, capacity, price, stock, locked, create_time, update_time
+    </sql>
+
+    <select id="findById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM device_slot
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByDeviceId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM device_slot
+        WHERE device_id = #{deviceId}
+        ORDER BY slot_id
+    </select>
+
+    <select id="findByDeviceIdAndSlotId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM device_slot
+        WHERE device_id = #{deviceId} AND slot_id = #{slotId}
+    </select>
+
+    <select id="findByGoodsId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM device_slot
+        WHERE goods_id = #{goodsId}
+        ORDER BY device_id, slot_id
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM device_slot
+        ORDER BY device_id, slot_id
+    </select>
+
+    <insert id="insert" parameterType="com.brewingmachine.entity.DeviceSlot" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO device_slot
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">device_id,</if>
+            <if test="slotId != null">slot_id,</if>
+            <if test="goodsId != null">goods_id,</if>
+            <if test="priceId != null">price_id,</if>
+            <if test="capacity != null">capacity,</if>
+            <if test="price != null">price,</if>
+            <if test="stock != null">stock,</if>
+            <if test="locked != null">locked,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="slotId != null">#{slotId},</if>
+            <if test="goodsId != null">#{goodsId},</if>
+            <if test="priceId != null">#{priceId},</if>
+            <if test="capacity != null">#{capacity},</if>
+            <if test="price != null">#{price},</if>
+            <if test="stock != null">#{stock},</if>
+            <if test="locked != null">#{locked},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.brewingmachine.entity.DeviceSlot">
+        UPDATE device_slot
+        <set>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="slotId != null">slot_id = #{slotId},</if>
+            <if test="goodsId != null">goods_id = #{goodsId},</if>
+            <if test="priceId != null">price_id = #{priceId},</if>
+            <if test="capacity != null">capacity = #{capacity},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="locked != null">locked = #{locked},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStock">
+        UPDATE device_slot
+        SET stock = #{stock}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM device_slot WHERE id = #{id}
+    </delete>
+
+</mapper>

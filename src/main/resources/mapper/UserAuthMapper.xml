@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.UserAuthMapper">
+
+    <resultMap id="BaseResultMap" type="com.brewingmachine.entity.UserAuth">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="type" property="type"/>
+        <result column="access_key" property="accessKey"/>
+        <result column="secret_key" property="secretKey"/>
+        <result column="bind_time" property="bindTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, type, access_key, secret_key, bind_time, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.brewingmachine.entity.UserAuth" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_auth (user_id, type, access_key, secret_key, bind_time, create_time, update_time)
+        VALUES (#{userId}, #{type}, #{accessKey}, #{secretKey}, #{bindTime}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="findByUserIdAndType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_auth
+        WHERE user_id = #{userId} AND type = #{type}
+    </select>
+
+    <select id="findByAccessKey" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_auth
+        WHERE access_key = #{accessKey}
+    </select>
+
+    <select id="findByUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_auth
+        WHERE user_id = #{userId}
+        ORDER BY bind_time DESC
+    </select>
+
+    <delete id="deleteByUserIdAndType">
+        DELETE FROM user_auth
+        WHERE user_id = #{userId} AND type = #{type}
+    </delete>
+
+    <update id="update" parameterType="com.brewingmachine.entity.UserAuth">
+        UPDATE user_auth
+        <set>
+            <if test="accessKey != null">access_key = #{accessKey},</if>
+            <if test="secretKey != null">secret_key = #{secretKey},</if>
+            <if test="bindTime != null">bind_time = #{bindTime},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

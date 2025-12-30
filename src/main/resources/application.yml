@@ -19,8 +19,8 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.brewingmachine.entity
   configuration:
-  map-underscore-to-camel-case: true
-  log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 #
   # Redis配置（可选，如果不使用Redis可注释掉）
 #  redis:

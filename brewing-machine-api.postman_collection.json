@@ -1,0 +1,2051 @@
+{
+	"info": {
+		"_postman_id": "brewing-machine-api",
+		"name": "智能酿酒机平台API",
+		"description": "智能酿酒机平台的完整API接口集合",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "登录认证",
+			"item": [
+				{
+					"name": "微信登录",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"wx_code\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login/wx/app",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login",
+								"wx",
+								"app"
+							]
+						}
+					}
+				},
+				{
+					"name": "基础登录",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"username\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login/basic",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login",
+								"basic"
+							]
+						}
+					}
+				},
+				{
+					"name": "Token验证",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/login/token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login",
+								"token"
+							]
+						}
+					}
+				},
+				{
+					"name": "二维码登录-生成二维码",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/qr/login/generate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"qr",
+								"login",
+								"generate"
+							]
+						}
+					}
+				},
+				{
+					"name": "二维码登录-查询状态",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/qr/login/status/{{qrToken}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"qr",
+								"login",
+								"status",
+								"{{qrToken}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "二维码登录-扫描",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/qr/login/scan?qrToken={{qrToken}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"qr",
+								"login",
+								"scan"
+							],
+							"query": [
+								{
+									"key": "qrToken",
+									"value": "{{qrToken}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "二维码登录-确认",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"qrToken\": \"{{qrToken}}\",\n  \"userId\": 123,\n  \"userInfo\": {\n    \"userId\": 123,\n    \"username\": \"username\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/qr/login/confirm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"qr",
+								"login",
+								"confirm"
+							]
+						}
+					}
+				},
+				{
+					"name": "微信扫码登录-获取授权URL",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/wechat/auth/url",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"wechat",
+								"auth",
+								"url"
+							]
+						}
+					}
+				},
+				{
+					"name": "微信小程序授权URL",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/wechat/mp/auth/url",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"wechat",
+								"mp",
+								"auth",
+								"url"
+							]
+						}
+					}
+				},
+				{
+					"name": "微信登录回调",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/wechat/callback?code=code&state=state",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"wechat",
+								"callback"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "code"
+								},
+								{
+									"key": "state",
+									"value": "state"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "验证Token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/wechat/token/validate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"wechat",
+								"token",
+								"validate"
+							]
+						}
+					}
+				},
+				{
+					"name": "刷新Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/wechat/token/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"wechat",
+								"token",
+								"refresh"
+							]
+						}
+					}
+				},
+				{
+					"name": "退出登录",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/wechat/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"wechat",
+								"logout"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "用户管理",
+			"item": [
+				{
+					"name": "获取用户信息",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/user/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"info"
+							]
+						}
+					}
+				},
+				{
+					"name": "更新用户信息",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nickName\": \"用户昵称\",\n  \"avatar\": \"头像URL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/info/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"info",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "更新头像",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"avatar\": \"头像URL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/avatar/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"avatar",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "绑定手机号",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone\": \"手机号\",\n  \"code\": \"验证码\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/phone/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"phone",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "修改密码",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oldPassword\": \"旧密码\",\n  \"newPassword\": \"新密码\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/password/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"password",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "绑定推荐人",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"referrerId\": 123\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/member/referrer/bind",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"member",
+								"referrer",
+								"bind"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "商品管理",
+			"item": [
+				{
+					"name": "商品列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/apis/goods/list?page=1&size=10&keyword=关键词",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"goods",
+								"list"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "keyword",
+									"value": "关键词"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "添加商品",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"商品名称\",\n  \"cover\": \"封面URL\",\n  \"description\": \"商品描述\",\n  \"categoryId\": \"123\",\n  \"specs\": [\n    {\n      \"capacity\": 500,\n      \"price\": 99.9\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/goods/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"goods",
+								"add"
+							]
+						}
+					}
+				},
+				{
+					"name": "修改商品",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\",\n  \"name\": \"商品名称\",\n  \"cover\": \"封面URL\",\n  \"description\": \"商品描述\",\n  \"categoryId\": \"123\",\n  \"specs\": [\n    {\n      \"capacity\": 500,\n      \"price\": 99.9\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/goods/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"goods",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "删除商品",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/goods/del",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"goods",
+								"del"
+							]
+						}
+					}
+				},
+				{
+					"name": "价格规格列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/apis/goods/price/list?goodsId=123",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"goods",
+								"price",
+								"list"
+							],
+							"query": [
+								{
+									"key": "goodsId",
+									"value": "123"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "修改价格规格",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\",\n  \"price\": 99.9\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/goods/price/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"goods",
+								"price",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "删除价格规格",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/goods/price/del",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"goods",
+								"price",
+								"del"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "门店管理",
+			"item": [
+				{
+					"name": "获取店铺详情",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/get",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"get"
+							]
+						}
+					}
+				},
+				{
+					"name": "店铺列表",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"page\": 1,\n  \"size\": 10,\n  \"keyword\": \"关键词\",\n  \"latitude\": 39.9042,\n  \"longitude\": 116.4074\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"list"
+							]
+						}
+					}
+				},
+				{
+					"name": "修改店铺",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\",\n  \"name\": \"店铺名称\",\n  \"address\": \"店铺地址\",\n  \"cover\": \"封面URL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "添加店铺",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"店铺名称\",\n  \"address\": \"店铺地址\",\n  \"latitude\": 39.9042,\n  \"longitude\": 116.4074\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"add"
+							]
+						}
+					}
+				},
+				{
+					"name": "删除店铺",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/del",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"del"
+							]
+						}
+					}
+				},
+				{
+					"name": "店铺下拉数据",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/dim",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"dim"
+							]
+						}
+					}
+				},
+				{
+					"name": "分类列表",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"storeId\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/category/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"category",
+								"list"
+							]
+						}
+					}
+				},
+				{
+					"name": "添加分类",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"分类名称\",\n  \"sort\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/category/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"category",
+								"add"
+							]
+						}
+					}
+				},
+				{
+					"name": "修改分类",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\",\n  \"name\": \"分类名称\",\n  \"sort\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/category/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"category",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "删除分类",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/category/del",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"category",
+								"del"
+							]
+						}
+					}
+				},
+				{
+					"name": "分类下拉数据",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"storeId\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/store/category/dim",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"store",
+								"category",
+								"dim"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "设备管理",
+			"item": [
+				{
+					"name": "获取设备详情",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"info"
+							]
+						}
+					}
+				},
+				{
+					"name": "设备列表",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"page\": 1,\n  \"size\": 10,\n  \"status\": \"ACTIVE\",\n  \"keyword\": \"关键词\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"list"
+							]
+						}
+					}
+				},
+				{
+					"name": "修改设备",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\",\n  \"name\": \"设备名称\",\n  \"storeId\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "绑定设备",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\",\n  \"storeId\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/bind",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"bind"
+							]
+						}
+					}
+				},
+				{
+					"name": "解除绑定设备",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/Unbind",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"Unbind"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取槽位列表",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/slot/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"slot",
+								"list"
+							]
+						}
+					}
+				},
+				{
+					"name": "修改槽位设置",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\",\n  \"slotId\": \"123\",\n  \"goodsId\": \"456\",\n  \"price\": 99.9\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/slot/set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"slot",
+								"set"
+							]
+						}
+					}
+				},
+				{
+					"name": "锁定槽位",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\",\n  \"slotId\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/slot/lock",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"slot",
+								"lock"
+							]
+						}
+					}
+				},
+				{
+					"name": "解锁槽位",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\",\n  \"slotId\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/device/slot/unlock",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"device",
+								"slot",
+								"unlock"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "订单管理",
+			"item": [
+				{
+					"name": "创建订单",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sn\": \"设备序列号\",\n  \"slotId\": 123,\n  \"quantity\": 1,\n  \"remark\": \"备注\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取订单详情",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"订单ID\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"info"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取用户订单列表",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"PAID\",\n  \"page\": 1,\n  \"size\": 10\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"list"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取代理订单列表",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"PAID\",\n  \"storeId\": 123,\n  \"startTime\": \"2023-01-01\",\n  \"endTime\": \"2023-12-31\",\n  \"page\": 1,\n  \"size\": 10\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/agent/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"agent",
+								"list"
+							]
+						}
+					}
+				},
+				{
+					"name": "取消订单",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"订单ID\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"cancel"
+							]
+						}
+					}
+				},
+				{
+					"name": "支付订单",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"订单ID\",\n  \"payType\": \"WECHAT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/pay",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"pay"
+							]
+						}
+					}
+				},
+				{
+					"name": "退款",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"订单ID\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/refund",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"refund"
+							]
+						}
+					}
+				},
+				{
+					"name": "确认完成订单",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"订单ID\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/order/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"order",
+								"complete"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "优惠券管理",
+			"item": [
+				{
+					"name": "创建优惠券",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"优惠券名称\",\n  \"description\": \"优惠券描述\",\n  \"type\": \"PERCENTAGE\",\n  \"value\": 20.0,\n  \"minAmount\": 100.0,\n  \"maxDiscount\": 50,\n  \"totalCount\": 1000,\n  \"perUserLimit\": 3,\n  \"startTime\": \"2023-01-01T00:00:00\",\n  \"endTime\": \"2023-12-31T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "更新优惠券",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 123,\n  \"name\": \"优惠券名称\",\n  \"description\": \"优惠券描述\",\n  \"type\": \"PERCENTAGE\",\n  \"value\": 20.0,\n  \"minAmount\": 100.0,\n  \"maxDiscount\": 50,\n  \"totalCount\": 1000,\n  \"perUserLimit\": 3,\n  \"startTime\": \"2023-01-01T00:00:00\",\n  \"endTime\": \"2023-12-31T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"update"
+							]
+						}
+					}
+				},
+				{
+					"name": "删除优惠券",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 123\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"delete"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取优惠券详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/detail/123",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"detail",
+								"123"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取优惠券列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/list?status=ACTIVE&keyword=关键词&page=1&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"list"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								},
+								{
+									"key": "keyword",
+									"value": "关键词"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "获取用户优惠券列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/user-list?status=UNUSED&page=1&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"user-list"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "UNUSED"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "领取优惠券",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"couponId\": 123\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/receive",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"receive"
+							]
+						}
+					}
+				},
+				{
+					"name": "使用优惠券",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userCouponId\": 123\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/coupon/use",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"coupon",
+								"use"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "活动管理",
+			"item": [
+				{
+					"name": "创建活动",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"活动名称\",\n  \"type\": \"FULL_REDUCTION\",\n  \"conditions\": {\n    \"minAmount\": 100.0\n  },\n  \"benefits\": {\n    \"discount\": 20.0\n  },\n  \"startTime\": \"2023-01-01T00:00:00\",\n  \"endTime\": \"2023-12-31T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/activity/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"activity",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "更新活动",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 123,\n  \"name\": \"活动名称\",\n  \"type\": \"FULL_REDUCTION\",\n  \"conditions\": {\n    \"minAmount\": 100.0\n  },\n  \"benefits\": {\n    \"discount\": 20.0\n  },\n  \"startTime\": \"2023-01-01T00:00:00\",\n  \"endTime\": \"2023-12-31T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/activity/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"activity",
+								"update"
+							]
+						}
+					}
+				},
+				{
+					"name": "删除活动",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 123\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/apis/activity/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"activity",
+								"delete"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取活动详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/apis/activity/detail/123",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"activity",
+								"detail",
+								"123"
+							]
+						}
+					}
+				},
+				{
+					"name": "获取活动列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/apis/activity/list?status=ACTIVE&keyword=关键词&page=1&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"apis",
+								"activity",
+								"list"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								},
+								{
+									"key": "keyword",
+									"value": "关键词"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "qrToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

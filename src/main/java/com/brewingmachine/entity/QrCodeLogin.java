@@ -35,6 +35,31 @@ public class QrCodeLogin {
     private String userInfo;
 
     /**
+     * 角色：agent-代理商，merchant-商家，machine_owner-机主等
+     */
+    private String role;
+
+    /**
+     * 省份
+     */
+    private String province;
+
+    /**
+     * 城市
+     */
+    private String city;
+
+    /**
+     * 区县
+     */
+    private String district;
+
+    /**
+     * 街道
+     */
+    private String street;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

@@ -27,7 +27,7 @@
 
     <sql id="Base_Column_List">
         id, username, password, nickname, phone, email, avatar, gender, status, parent_user_id, 
-        balance, points, gift_money, wine_gold, total_consumption, create_time, update_time, 
+        balance, points, create_time, update_time,
         last_login_time, token, token_expire_time
     </sql>
 

@@ -178,6 +178,17 @@ public class AuthService {
         userMapper.update(user);
     }
 
+    @Transactional
+    public void updateUserRole(Long userId, String role) {
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        user.setRole(role);
+        userMapper.update(user);
+    }
+
 
 
     private boolean verifySmsCode(String phone, String code) {
@@ -205,6 +216,7 @@ public class AuthService {
         response.setBalance(user.getBalance() != null ? user.getBalance().doubleValue() : 0.0);
         response.setIntegral(user.getPoints() != null ? user.getPoints() : 0L);
         response.setRole(user.getRole());
+        response.setToken(user.getToken());
         return response;
     }
 }

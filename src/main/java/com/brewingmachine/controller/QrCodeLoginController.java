@@ -21,7 +21,7 @@ public class QrCodeLoginController {
     private QrCodeLoginService qrCodeLoginService;
 
     /**
-     * 生成二维码
+     * 生成普通二维码
      */
     @PostMapping("/generate")
     public Map<String, Object> generateQrCode() {
@@ -32,6 +32,35 @@ public class QrCodeLoginController {
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);
             result.put("message", "生成二维码失败：" + e.getMessage());
+            return result;
+        }
+    }
+    
+    /**
+     * 生成带角色和层级信息的授权二维码
+     */
+    @PostMapping("/generate/authorized")
+    public Map<String, Object> generateAuthorizedQrCode(@RequestBody Map<String, Object> params) {
+        try {
+            String role = (String) params.get("role");
+            String province = (String) params.get("province");
+            String city = (String) params.get("city");
+            String district = (String) params.get("district");
+            String street = (String) params.get("street");
+            
+            if (role == null || role.isEmpty()) {
+                Map<String, Object> result = new HashMap<>();
+                result.put("success", false);
+                result.put("message", "角色信息不能为空");
+                return result;
+            }
+            
+            return qrCodeLoginService.generateQrCode(role, province, city, district, street);
+        } catch (Exception e) {
+            log.error("生成授权二维码失败", e);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", false);
+            result.put("message", "生成授权二维码失败：" + e.getMessage());
             return result;
         }
     }

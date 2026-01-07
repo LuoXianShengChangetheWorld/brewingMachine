@@ -9,6 +9,11 @@
         <result column="status" property="status" jdbcType="INTEGER"/>
         <result column="user_id" property="userId" jdbcType="BIGINT"/>
         <result column="user_info" property="userInfo" jdbcType="LONGVARCHAR"/>
+        <result column="role" property="role" jdbcType="VARCHAR"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="district" property="district" jdbcType="VARCHAR"/>
+        <result column="street" property="street" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
         <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP"/>
         <result column="scan_time" property="scanTime" jdbcType="TIMESTAMP"/>
@@ -17,15 +22,15 @@
 
     <!-- 基础列 -->
     <sql id="Base_Column_List">
-        id, qr_token, status, user_id, user_info, create_time, expire_time, scan_time, confirm_time
+        id, qr_token, status, user_id, user_info, role, province, city, district, street, create_time, expire_time, scan_time, confirm_time
     </sql>
 
     <!-- 插入二维码登录记录 -->
     <insert id="insert" parameterType="com.brewingmachine.entity.QrCodeLogin" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO qr_code_login (
-            qr_token, status, create_time, expire_time
+            qr_token, status, role, province, city, district, street, create_time, expire_time
         ) VALUES (
-            #{qrToken}, #{status}, #{createTime}, #{expireTime}
+            #{qrToken}, #{status}, #{role}, #{province}, #{city}, #{district}, #{street}, #{createTime}, #{expireTime}
         )
     </insert>
 

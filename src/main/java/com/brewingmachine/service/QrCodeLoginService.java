@@ -27,14 +27,24 @@ public class QrCodeLoginService {
     @Autowired
     private QrCodeService qrCodeService;
 
+    @Autowired
+    private AuthService authService;
+
     @Value("${qr.code.expire-seconds:300}")
     private int expireSeconds;
 
     /**
      * 生成二维码
      */
-//    @Transactional
     public Map<String, Object> generateQrCode() {
+        return generateQrCode(null, null, null, null, null);
+    }
+
+    /**
+     * 生成带角色和层级信息的二维码
+     */
+//    @Transactional
+    public Map<String, Object> generateQrCode(String role, String province, String city, String district, String street) {
         try {
             // 生成唯一token
             String qrToken = UUID.randomUUID().toString().replace("-", "");
@@ -43,13 +53,24 @@ public class QrCodeLoginService {
             QrCodeLogin qrCodeLogin = new QrCodeLogin();
             qrCodeLogin.setQrToken(qrToken);
             qrCodeLogin.setStatus(0); // 未扫描
+            qrCodeLogin.setRole(role);
+            qrCodeLogin.setProvince(province);
+            qrCodeLogin.setCity(city);
+            qrCodeLogin.setDistrict(district);
+            qrCodeLogin.setStreet(street);
             qrCodeLogin.setCreateTime(LocalDateTime.now());
             qrCodeLogin.setExpireTime(LocalDateTime.now().plusSeconds(expireSeconds));
             
             qrCodeLoginMapper.insert(qrCodeLogin);
 
             // 生成二维码内容（前端扫码后会跳转到这个地址）
-            String qrContent = String.format("brewingmachine://login?token=%s", qrToken);
+            StringBuilder qrContentBuilder = new StringBuilder("brewingmachine://login?token=");
+            qrContentBuilder.append(qrToken);
+            if (role != null) {
+                qrContentBuilder.append("&role=").append(role);
+            }
+            
+            String qrContent = qrContentBuilder.toString();
             
             // 生成二维码图片（Base64）
             String qrCodeImage = qrCodeService.generateQrCodeBase64(qrContent);
@@ -59,7 +80,7 @@ public class QrCodeLoginService {
             result.put("qrCodeImage", qrCodeImage);
             result.put("expireTime", qrCodeLogin.getExpireTime().toString());
 
-            log.info("生成二维码成功，token: {}", qrToken);
+            log.info("生成二维码成功，token: {}, role: {}", qrToken, role);
             return result;
 
         } catch (Exception e) {
@@ -184,6 +205,27 @@ public class QrCodeLoginService {
             result.put("success", false);
             result.put("message", "二维码状态不正确，请先扫描");
             return result;
+        }
+
+        // 检查是否需要绑定角色
+        if (qrCodeLogin.getRole() != null) {
+            try {
+                // 更新用户角色
+                authService.updateUserRole(userId, qrCodeLogin.getRole());
+                log.info("用户绑定角色成功，userId: {}, role: {}", userId, qrCodeLogin.getRole());
+                result.put("roleBound", true);
+                result.put("role", qrCodeLogin.getRole());
+                
+                // 可以根据需要进一步处理层级信息（province, city, district, street）
+                // 例如更新用户的地址信息或创建相关的关系记录
+            } catch (Exception e) {
+                log.error("用户绑定角色失败，userId: {}, role: {}", userId, qrCodeLogin.getRole(), e);
+                result.put("success", false);
+                result.put("message", "角色绑定失败");
+                return result;
+            }
+        } else {
+            result.put("roleBound", false);
         }
 
         // 确认登录

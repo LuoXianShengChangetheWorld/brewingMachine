@@ -12,6 +12,7 @@
         <result column="avatar" property="avatar"/>
         <result column="gender" property="gender"/>
         <result column="status" property="status"/>
+        <result column="role" property="role"/>
         <result column="parent_user_id" property="parentUserId"/>
         <result column="balance" property="balance"/>
         <result column="points" property="points"/>
@@ -23,19 +24,20 @@
         <result column="last_login_time" property="lastLoginTime"/>
         <result column="token" property="token"/>
         <result column="token_expire_time" property="tokenExpireTime"/>
+
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, username, password, nickname, phone, email, avatar, gender, status, parent_user_id, 
+        id, username, password, nickname, phone, email, avatar, gender, status, role, parent_user_id, 
         balance, points, create_time, update_time,
         last_login_time, token, token_expire_time
     </sql>
 
     <insert id="insert" parameterType="com.brewingmachine.entity.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user (username, password, nickname, phone, email, avatar, gender, status, 
+        INSERT INTO user (username, password, nickname, phone, email, avatar, gender, status, role, 
                           parent_user_id, balance, points, gift_money, wine_gold, total_consumption, 
                           create_time, update_time)
-        VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email}, #{avatar}, #{gender}, #{status},
+        VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email}, #{avatar}, #{gender}, #{status}, #{role},
                 #{parentUserId}, #{balance}, #{points}, #{giftMoney}, #{wineGold}, #{totalConsumption},
                 #{createTime}, #{updateTime})
     </insert>
@@ -74,6 +76,7 @@
             <if test="avatar != null">avatar = #{avatar},</if>
             <if test="gender != null">gender = #{gender},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="role != null">role = #{role},</if>
             <if test="parentUserId != null">parent_user_id = #{parentUserId},</if>
             <if test="balance != null">balance = #{balance},</if>
             <if test="points != null">points = #{points},</if>

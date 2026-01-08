@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.UserRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.brewingmachine.entity.UserRole">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_id" property="roleId"/>
+        <result column="commission_rate" property="commissionRate"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, role_id, commission_rate, status, create_time
+    </sql>
+
+    <insert id="insert" parameterType="com.brewingmachine.entity.UserRole" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_role (user_id, role_id, commission_rate, status, create_time)
+        VALUES (#{userId}, #{roleId}, #{commissionRate}, #{status}, #{createTime})
+    </insert>
+
+    <update id="update" parameterType="com.brewingmachine.entity.UserRole">
+        UPDATE user_role
+        <set>
+            <if test="roleId != null">role_id = #{roleId},</if>
+            <if test="commissionRate != null">commission_rate = #{commissionRate},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM user_role WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByUserId" parameterType="java.lang.Long">
+        DELETE FROM user_role WHERE user_id = #{userId}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_role
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_role
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectByRoleId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_role
+        WHERE role_id = #{roleId}
+    </select>
+
+    <select id="selectByUserIdAndRoleId" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_role
+        WHERE user_id = #{userId} AND role_id = #{roleId}
+    </select>
+
+</mapper>

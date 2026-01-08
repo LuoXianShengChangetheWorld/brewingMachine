@@ -3,6 +3,7 @@ package com.brewingmachine.entity;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class User {
@@ -25,7 +26,9 @@ public class User {
 
     private Integer status;
 
-    private String role;
+    private String role; // 保留原字段以兼容现有代码
+
+    private List<UserRole> roles; // 支持多角色
 
     private Long parentUserId;
 
@@ -48,6 +51,14 @@ public class User {
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    // 层级信息字段（存储省市区街道等层级信息）
+    private String hierarchy;
+    
+    // 财务相关字段
+    private BigDecimal giftMoney;
+    private BigDecimal wineGold;
+    private BigDecimal totalConsumption;
 
 
 }

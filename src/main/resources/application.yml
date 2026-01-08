@@ -1,18 +1,11 @@
 server:
-  port: 8080
-#  servlet:
-#    context-path: /api
+  port: 8081  # 默认端口，会被环境配置覆盖
 
 spring:
   application:
     name: brewing-machine
-  
-  # 数据源配置
-  datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.3.191:3306/brewing_machine
-    username: root
-    password: 123456
+  profiles:
+    active: dev  # 默认使用开发环境配置
   
   # MyBatis配置
 mybatis:
@@ -20,21 +13,6 @@ mybatis:
   type-aliases-package: com.brewingmachine.entity
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-#
-  # Redis配置（可选，如果不使用Redis可注释掉）
-#  redis:
-#    host: localhost
-#    port: 6379
-#    password:
-#    database: 0
-#    timeout: 3000ms
-#    lettuce:
-#      pool:
-#        max-active: 8
-#        max-wait: -1ms
-#        max-idle: 8
-#        min-idle: 0
 
 # 二维码配置
 qr:
@@ -43,23 +21,23 @@ qr:
     width: 300
     height: 300
 
-# 微信登录配置
-wechat:
-  app-id: your_app_id              # 微信开放平台AppID
-  app-secret: your_app_secret      # 微信开放平台AppSecret
-  redirect-uri: http://localhost:8080/api/wechat/callback  # 回调地址
-  scope: snsapi_login              # 授权作用域
-  state: STATE                     # 状态标识
+# JWT配置
+jwt:
+  secret: brewing_machine_secret_key_2024_secure_long_key_for_jwt_hmac_sha256  # JWT密钥，长度至少32字节(256位)以满足HMAC-SHA256安全要求
+  expire-hours: 24  # JWT过期时间（小时）
+  issuer: brewing-machine  # JWT签发者
 
-# 日志配置
-logging:
-  level:
-    com.brewingmachine: DEBUG
-    org.springframework.web: INFO
-    org.mybatis: DEBUG
-    java.sql: DEBUG
-    java.sql.Connection: DEBUG
-    java.sql.Statement: DEBUG
-    java.sql.PreparedStatement: DEBUG
-    java.sql.ResultSet: DEBUG
+# Redis配置（可选，如果不使用Redis可注释掉）
+#spring.redis:
+#  host: localhost
+#  port: 6379
+#  password:
+#  database: 0
+#  timeout: 3000ms
+#  lettuce:
+#    pool:
+#      max-active: 8
+#      max-wait: -1ms
+#      max-idle: 8
+#      min-idle: 0
 

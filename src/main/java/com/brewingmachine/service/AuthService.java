@@ -5,12 +5,18 @@ import com.brewingmachine.dto.WeChatUserInfoDTO;
 import com.brewingmachine.dto.response.UserInfoResponse;
 import com.brewingmachine.entity.User;
 import com.brewingmachine.entity.UserAuth;
+import com.brewingmachine.entity.UserRole;
+import com.brewingmachine.entity.Role;
 import com.brewingmachine.mapper.UserMapper;
 import com.brewingmachine.mapper.UserAuthMapper;
+import com.brewingmachine.mapper.UserRoleMapper;
+import com.brewingmachine.mapper.RoleMapper;
+import com.brewingmachine.service.TokenService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,12 +24,18 @@ public class AuthService {
 
     private final UserMapper userMapper;
     private final UserAuthMapper userAuthMapper;
+    private final UserRoleMapper userRoleMapper;
+    private final RoleMapper roleMapper;
     private final WeChatLoginService weChatLoginService;
+    private final TokenService tokenService;
 
-    public AuthService(UserMapper userMapper, UserAuthMapper userAuthMapper, WeChatLoginService weChatLoginService) {
+    public AuthService(UserMapper userMapper, UserAuthMapper userAuthMapper, UserRoleMapper userRoleMapper, RoleMapper roleMapper, WeChatLoginService weChatLoginService, TokenService tokenService) {
         this.userMapper = userMapper;
         this.userAuthMapper = userAuthMapper;
+        this.userRoleMapper = userRoleMapper;
+        this.roleMapper = roleMapper;
         this.weChatLoginService = weChatLoginService;
+        this.tokenService = tokenService;
     }
 
     @Transactional
@@ -38,7 +50,7 @@ public class AuthService {
             throw new RuntimeException("用户不存在");
         }
 
-        String token = generateToken();
+        String token = tokenService.generateToken(user.getId());
         updateUserToken(user.getId(), token);
         
         UserInfoResponse response = convertToUserInfoResponse(user);
@@ -57,10 +69,12 @@ public class AuthService {
             throw new RuntimeException("密码错误");
         }
 
-        String token = generateToken();
+        String token = tokenService.generateToken(user.getId());
         updateUserToken(user.getId(), token);
 
-        return convertToUserInfoResponse(user);
+        UserInfoResponse response = convertToUserInfoResponse(user);
+        response.setToken(token);
+        return response;
     }
 
     @Transactional
@@ -92,31 +106,25 @@ public class AuthService {
         return convertToUserInfoResponse(user);
     }
 
-    @Transactional
     public UserInfoResponse getUserInfoByToken(String token) {
-        User user = userMapper.findByToken(token);
+        // 使用TokenService验证JWT
+        if (!tokenService.validateToken(token)) {
+            throw new RuntimeException("token无效或已过期");
+        }
+        Long userId = tokenService.getUserIdFromToken(token);
+        User user = userMapper.findById(userId);
         if (user == null) {
-            throw new RuntimeException("token无效");
+            throw new RuntimeException("用户不存在");
         }
-
-        if (user.getTokenExpireTime() != null && user.getTokenExpireTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("token已过期");
-        }
-
         return convertToUserInfoResponse(user);
     }
 
     public Long getUserIdByToken(String token) {
-        User user = userMapper.findByToken(token);
-        if (user == null) {
-            throw new RuntimeException("token无效");
+        // 使用TokenService验证JWT
+        if (!tokenService.validateToken(token)) {
+            throw new RuntimeException("token无效或已过期");
         }
-
-        if (user.getTokenExpireTime() != null && user.getTokenExpireTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("token已过期");
-        }
-
-        return user.getId();
+        return tokenService.getUserIdFromToken(token);
     }
 
     @Transactional
@@ -185,8 +193,72 @@ public class AuthService {
             throw new RuntimeException("用户不存在");
         }
 
+        // 检查是否是代理商角色
+        if ("agent".equals(role)) {
+            // 检查用户是否已经有代理商角色
+            List<UserRole> userRoles = userRoleMapper.selectByUserId(userId);
+            for (UserRole userRole : userRoles) {
+                Role roleInfo = roleMapper.selectById(userRole.getRoleId());
+                if (roleInfo != null && "agent".equals(roleInfo.getRoleCode())) {
+                    throw new RuntimeException("用户已经是代理商角色，不能重复绑定");
+                }
+            }
+        }
+
+        // 保留原角色字段以兼容现有代码
         user.setRole(role);
         userMapper.update(user);
+        
+        // 如果是新角色，添加到用户角色关系表
+        Role roleInfo = roleMapper.selectByRoleCode(role);
+        if (roleInfo != null) {
+            UserRole existingUserRole = userRoleMapper.selectByUserIdAndRoleId(userId, roleInfo.getId());
+            if (existingUserRole == null) {
+                UserRole userRole = new UserRole();
+                userRole.setUserId(userId);
+                userRole.setRoleId(roleInfo.getId());
+                userRole.setStatus(1);
+                userRoleMapper.insert(userRole);
+            }
+        }
+    }
+
+    @Transactional
+    public void updateUserRoleAndHierarchy(Long userId, String role, String hierarchy) {
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 检查是否是代理商角色
+        if ("agent".equals(role)) {
+            // 检查用户是否已经有代理商角色
+            List<UserRole> userRoles = userRoleMapper.selectByUserId(userId);
+            for (UserRole userRole : userRoles) {
+                Role roleInfo = roleMapper.selectById(userRole.getRoleId());
+                if (roleInfo != null && "agent".equals(roleInfo.getRoleCode())) {
+                    throw new RuntimeException("用户已经是代理商角色，不能重复绑定");
+                }
+            }
+        }
+
+        // 保留原角色字段以兼容现有代码
+        user.setRole(role);
+        user.setHierarchy(hierarchy);
+        userMapper.update(user);
+        
+        // 如果是新角色，添加到用户角色关系表
+        Role roleInfo = roleMapper.selectByRoleCode(role);
+        if (roleInfo != null) {
+            UserRole existingUserRole = userRoleMapper.selectByUserIdAndRoleId(userId, roleInfo.getId());
+            if (existingUserRole == null) {
+                UserRole userRole = new UserRole();
+                userRole.setUserId(userId);
+                userRole.setRoleId(roleInfo.getId());
+                userRole.setStatus(1);
+                userRoleMapper.insert(userRole);
+            }
+        }
     }
 
 
@@ -197,13 +269,11 @@ public class AuthService {
         return true; // 临时返回true，实际需要实现验证逻辑
     }
 
-    private String generateToken() {
-        return UUID.randomUUID().toString().replace("-", "");
-    }
+
 
     private void updateUserToken(Long userId, String token) {
-        LocalDateTime expireTime = LocalDateTime.now().plusDays(7);
-        userMapper.updateToken(userId, token, expireTime);
+        // JWT是无状态的，不需要在数据库中存储token
+        // 只需更新最后登录时间
         userMapper.updateLastLoginTime(userId, LocalDateTime.now());
     }
 
@@ -216,7 +286,6 @@ public class AuthService {
         response.setBalance(user.getBalance() != null ? user.getBalance().doubleValue() : 0.0);
         response.setIntegral(user.getPoints() != null ? user.getPoints() : 0L);
         response.setRole(user.getRole());
-        response.setToken(user.getToken());
         return response;
     }
 }

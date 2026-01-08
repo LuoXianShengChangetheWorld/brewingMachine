@@ -1,49 +1,66 @@
 package com.brewingmachine.service;
 
 import com.brewingmachine.mapper.UserMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.security.Key;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
 public class TokenService {
 
-    @Autowired
-    private UserMapper userMapper;
+    // JWT是无状态的，不需要UserMapper来操作token
+    // @Autowired
+    // private UserMapper userMapper;
 
-    private static final long TOKEN_EXPIRE_HOURS = 24;
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
-    private static final Map<String, TokenInfo> tokenStore = new ConcurrentHashMap<>();
+    @Value("${jwt.expire-hours}")
+    private Long expireHours;
 
-    private static class TokenInfo {
-        private Long userId;
-        private LocalDateTime expireTime;
+    @Value("${jwt.issuer}")
+    private String issuer;
 
-        public TokenInfo(Long userId, LocalDateTime expireTime) {
-            this.userId = userId;
-            this.expireTime = expireTime;
-        }
+    private Key getSigningKey() {
+        byte[] keyBytes = jwtSecret.getBytes();
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     /**
-     * 生成token
+     * 生成JWT token
      */
     public String generateToken(Long userId) {
-        String token = UUID.randomUUID().toString().replace("-", "");
-        TokenInfo tokenInfo = new TokenInfo(userId, LocalDateTime.now().plusHours(TOKEN_EXPIRE_HOURS));
-        tokenStore.put(token, tokenInfo);
+        LocalDateTime expireTime = LocalDateTime.now().plusHours(expireHours);
+        Date expireDate = Date.from(expireTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date now = new Date();
 
-        // 更新数据库中的token
-        userMapper.updateToken(userId, token, tokenInfo.expireTime);
+        // 构建JWT声明
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
 
-        log.info("生成token，用户ID: {}", userId);
+        // 生成JWT token
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuer(issuer)
+                .setIssuedAt(now)
+                .setExpiration(expireDate)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+
+        log.info("生成JWT token，用户ID: {}", userId);
         return token;
     }
 
@@ -51,31 +68,38 @@ public class TokenService {
      * 验证token
      */
     public boolean validateToken(String token) {
-        if (token == null || token.isEmpty()) {
+        try {
+            Claims claims = parseToken(token);
+            // 检查token是否过期
+            return claims.getExpiration().after(new Date());
+        } catch (Exception e) {
+            log.warn("验证token失败: {}", e.getMessage());
             return false;
         }
+    }
 
-        TokenInfo tokenInfo = tokenStore.get(token);
-        if (tokenInfo == null) {
-            return false;
-        }
-
-        if (LocalDateTime.now().isAfter(tokenInfo.expireTime)) {
-            tokenStore.remove(token);
-            return false;
-        }
-
-        return true;
+    /**
+     * 解析token获取声明
+     */
+    private Claims parseToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     /**
      * 获取token对应的用户ID
      */
-    public Long getUserIdByToken(String token) {
-        if (!validateToken(token)) {
+    public Long getUserIdFromToken(String token) {
+        try {
+            Claims claims = parseToken(token);
+            return claims.get("userId", Long.class);
+        } catch (Exception e) {
+            log.warn("获取用户ID失败: {}", e.getMessage());
             return null;
         }
-        return tokenStore.get(token).userId;
     }
 
     /**
@@ -84,43 +108,49 @@ public class TokenService {
     public Map<String, Object> validateTokenAndGetUser(String token) {
         Map<String, Object> result = new HashMap<>();
 
-        if (!validateToken(token)) {
+        try {
+            Claims claims = parseToken(token);
+            // 检查token是否过期
+            if (claims.getExpiration().after(new Date())) {
+                result.put("valid", true);
+                result.put("userId", claims.get("userId", Long.class));
+            } else {
+                result.put("valid", false);
+                result.put("message", "token已过期");
+            }
+        } catch (Exception e) {
             result.put("valid", false);
-            result.put("message", "token无效或已过期");
-            return result;
+            result.put("message", "token无效");
         }
 
-        TokenInfo tokenInfo = tokenStore.get(token);
-        result.put("valid", true);
-        result.put("userId", tokenInfo.userId);
         return result;
     }
 
     /**
      * 移除token
+     * JWT是无状态的，不需要在数据库中清除token
+     * 这里只是提供一个接口，实际操作是客户端删除token
      */
     public void removeToken(String token) {
-        if (token != null) {
-            TokenInfo tokenInfo = tokenStore.get(token);
-            if (tokenInfo != null) {
-                userMapper.clearToken(tokenInfo.userId);
-            }
-            tokenStore.remove(token);
-        }
+        // JWT是无状态的，不需要在数据库中清除token
+        log.info("移除JWT token");
     }
 
     /**
      * 刷新token过期时间
      */
-    public boolean refreshTokenExpireTime(String token) {
-        if (!validateToken(token)) {
-            return false;
+    public String refreshToken(String token) {
+        try {
+            Claims claims = parseToken(token);
+            Long userId = claims.get("userId", Long.class);
+            if (userId != null) {
+                // 生成新的token
+                return generateToken(userId);
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("刷新token失败: {}", e.getMessage());
+            return null;
         }
-
-        TokenInfo tokenInfo = tokenStore.get(token);
-        tokenInfo.expireTime = LocalDateTime.now().plusHours(TOKEN_EXPIRE_HOURS);
-        userMapper.updateTokenExpireTime(tokenInfo.userId, tokenInfo.expireTime);
-
-        return true;
     }
 }

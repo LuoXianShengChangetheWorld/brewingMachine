@@ -60,7 +60,7 @@ public class WeChatLoginController {
             return result;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
         return tokenService.validateTokenAndGetUser(token);
     }
 
@@ -78,10 +78,16 @@ public class WeChatLoginController {
         }
 
         String token = authHeader.substring(7);
-        boolean success = tokenService.refreshTokenExpireTime(token);
+        String newToken = tokenService.refreshToken(token);
 
-        result.put("success", success);
-        result.put("message", success ? "刷新成功" : "刷新失败");
+        if (newToken != null) {
+            result.put("success", true);
+            result.put("message", "刷新成功");
+            result.put("token", newToken);
+        } else {
+            result.put("success", false);
+            result.put("message", "刷新失败");
+        }
         return result;
     }
 
@@ -93,7 +99,7 @@ public class WeChatLoginController {
         Map<String, Object> result = new HashMap<>();
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            String token = authHeader.substring(7).trim();
             tokenService.removeToken(token);
         }
 

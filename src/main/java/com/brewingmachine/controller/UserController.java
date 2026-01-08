@@ -21,8 +21,9 @@ public class UserController {
     private final AuthService authService;
 
     @GetMapping("/info")
-    public Result<UserInfoResponse> getUserInfo(@RequestHeader("Authorization") String token) {
+    public Result<UserInfoResponse> getUserInfo(@RequestHeader("Authorization") String authHeader) {
         try {
+            String token = authHeader.substring(7).trim();
             UserInfoResponse userInfo = authService.getUserInfoByToken(token);
             return Result.success(userInfo);
         } catch (Exception e) {
@@ -31,9 +32,10 @@ public class UserController {
     }
 
     @PostMapping("/info/set")
-    public Result<UserInfoResponse> updateUserInfo(@RequestHeader("Authorization") String token,
+    public Result<UserInfoResponse> updateUserInfo(@RequestHeader("Authorization") String authHeader,
                                                    @RequestBody UpdateUserInfoRequest request) {
         try {
+            String token = authHeader.substring(7).trim();
             Long userId = authService.getUserIdByToken(token);
             UserInfoResponse userInfo = authService.updateUserInfo(userId, request.getNickName(), request.getAvatar());
             return Result.success(userInfo);
@@ -43,9 +45,10 @@ public class UserController {
     }
 
     @PostMapping("/avatar/set")
-    public Result<UserInfoResponse> updateAvatar(@RequestHeader("Authorization") String token,
+    public Result<UserInfoResponse> updateAvatar(@RequestHeader("Authorization") String authHeader,
                                                 @RequestBody UpdateAvatarRequest request) {
         try {
+            String token = authHeader.substring(7).trim();
             Long userId = authService.getUserIdByToken(token);
             UserInfoResponse userInfo = authService.updateUserInfo(userId, null, request.getAvatar());
             return Result.success(userInfo);

@@ -88,6 +88,59 @@ public class QrCodeLoginService {
             throw new RuntimeException("生成二维码失败", e);
         }
     }
+    
+    /**
+     * 生成角色绑定二维码（纯角色绑定，与登录无关）
+     */
+    public Map<String, Object> generateRoleBindQrCode(String role, String province, String city, String district, String street) {
+        try {
+            // 生成唯一token
+            String qrToken = UUID.randomUUID().toString().replace("-", "");
+            
+            // 创建二维码登录记录
+            QrCodeLogin qrCodeLogin = new QrCodeLogin();
+            qrCodeLogin.setQrToken(qrToken);
+            qrCodeLogin.setStatus(0); // 未扫描
+            qrCodeLogin.setRole(role);
+            qrCodeLogin.setProvince(province);
+            qrCodeLogin.setCity(city);
+            qrCodeLogin.setDistrict(district);
+            qrCodeLogin.setStreet(street);
+            qrCodeLogin.setCreateTime(LocalDateTime.now());
+            qrCodeLogin.setExpireTime(LocalDateTime.now().plusSeconds(expireSeconds));
+            
+            qrCodeLoginMapper.insert(qrCodeLogin);
+
+            // 生成二维码内容（纯角色绑定，与登录无关）
+            StringBuilder qrContentBuilder = new StringBuilder("brewingmachine://role-bind?token=");
+            qrContentBuilder.append(qrToken);
+            if (role != null) {
+                qrContentBuilder.append("&role=").append(role);
+            }
+            
+            String qrContent = qrContentBuilder.toString();
+            
+            // 生成二维码图片（Base64）
+            String qrCodeImage = qrCodeService.generateQrCodeBase64(qrContent);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("qrToken", qrToken);
+            result.put("qrCodeImage", qrCodeImage);
+            result.put("expireTime", qrCodeLogin.getExpireTime().toString());
+            result.put("role", role);
+            result.put("province", province);
+            result.put("city", city);
+            result.put("district", district);
+            result.put("street", street);
+
+            log.info("生成角色绑定二维码成功，token: {}, role: {}", qrToken, role);
+            return result;
+
+        } catch (Exception e) {
+            log.error("生成角色绑定二维码失败", e);
+            throw new RuntimeException("生成角色绑定二维码失败", e);
+        }
+    }
 
     /**
      * 查询二维码状态
@@ -208,25 +261,43 @@ public class QrCodeLoginService {
         }
 
         // 检查是否需要绑定角色
-        if (qrCodeLogin.getRole() != null) {
-            try {
-                // 更新用户角色
-                authService.updateUserRole(userId, qrCodeLogin.getRole());
-                log.info("用户绑定角色成功，userId: {}, role: {}", userId, qrCodeLogin.getRole());
-                result.put("roleBound", true);
-                result.put("role", qrCodeLogin.getRole());
-                
-                // 可以根据需要进一步处理层级信息（province, city, district, street）
-                // 例如更新用户的地址信息或创建相关的关系记录
-            } catch (Exception e) {
-                log.error("用户绑定角色失败，userId: {}, role: {}", userId, qrCodeLogin.getRole(), e);
-                result.put("success", false);
-                result.put("message", "角色绑定失败");
-                return result;
+            if (qrCodeLogin.getRole() != null) {
+                try {
+                    // 构建层级信息字符串
+                    StringBuilder hierarchyBuilder = new StringBuilder();
+                    if (qrCodeLogin.getProvince() != null) {
+                        hierarchyBuilder.append(qrCodeLogin.getProvince());
+                    }
+                    if (qrCodeLogin.getCity() != null) {
+                        if (hierarchyBuilder.length() > 0) hierarchyBuilder.append("-");
+                        hierarchyBuilder.append(qrCodeLogin.getCity());
+                    }
+                    if (qrCodeLogin.getDistrict() != null) {
+                        if (hierarchyBuilder.length() > 0) hierarchyBuilder.append("-");
+                        hierarchyBuilder.append(qrCodeLogin.getDistrict());
+                    }
+                    if (qrCodeLogin.getStreet() != null) {
+                        if (hierarchyBuilder.length() > 0) hierarchyBuilder.append("-");
+                        hierarchyBuilder.append(qrCodeLogin.getStreet());
+                    }
+                    String hierarchy = hierarchyBuilder.toString();
+                    
+                    // 更新用户角色和层级信息
+                    authService.updateUserRoleAndHierarchy(userId, qrCodeLogin.getRole(), hierarchy);
+                    log.info("用户绑定角色和层级信息成功，userId: {}, role: {}, hierarchy: {}", userId, qrCodeLogin.getRole(), hierarchy);
+                    result.put("roleBound", true);
+                    result.put("role", qrCodeLogin.getRole());
+                    result.put("hierarchy", hierarchy);
+                    
+                } catch (Exception e) {
+                    log.error("用户绑定角色和层级信息失败，userId: {}, role: {}", userId, qrCodeLogin.getRole(), e);
+                    result.put("success", false);
+                    result.put("message", "角色和层级信息绑定失败");
+                    return result;
+                }
+            } else {
+                result.put("roleBound", false);
             }
-        } else {
-            result.put("roleBound", false);
-        }
 
         // 确认登录
         String userInfoJson = JSON.toJSONString(userInfo);
@@ -239,6 +310,102 @@ public class QrCodeLoginService {
         } else {
             result.put("success", false);
             result.put("message", "登录失败");
+        }
+
+        return result;
+    }
+    
+    /**
+     * 确认角色绑定（移动端调用，纯角色绑定，与登录无关）
+     */
+    @Transactional
+    public Map<String, Object> confirmRoleBind(String qrToken, Long userId) {
+        QrCodeLogin qrCodeLogin = qrCodeLoginMapper.findByQrToken(qrToken);
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        if (qrCodeLogin == null) {
+            result.put("success", false);
+            result.put("message", "二维码不存在");
+            return result;
+        }
+        
+        // 检查是否过期
+        if (LocalDateTime.now().isAfter(qrCodeLogin.getExpireTime())) {
+            result.put("success", false);
+            result.put("message", "二维码已过期");
+            return result;
+        }
+
+        // 检查状态
+        if (qrCodeLogin.getStatus() == 2) {
+            result.put("success", false);
+            result.put("message", "二维码已被使用");
+            return result;
+        }
+
+        // 更新为已扫描状态
+        if (qrCodeLogin.getStatus() == 0) {
+            int updateCount = qrCodeLoginMapper.scanQrCode(qrToken, LocalDateTime.now());
+            if (updateCount <= 0) {
+                result.put("success", false);
+                result.put("message", "更新二维码状态失败");
+                return result;
+            }
+        }
+
+        // 绑定角色和层级信息
+        if (qrCodeLogin.getRole() != null) {
+            try {
+                // 构建层级信息字符串
+                StringBuilder hierarchyBuilder = new StringBuilder();
+                if (qrCodeLogin.getProvince() != null) {
+                    hierarchyBuilder.append(qrCodeLogin.getProvince());
+                }
+                if (qrCodeLogin.getCity() != null) {
+                    if (hierarchyBuilder.length() > 0) hierarchyBuilder.append("-");
+                    hierarchyBuilder.append(qrCodeLogin.getCity());
+                }
+                if (qrCodeLogin.getDistrict() != null) {
+                    if (hierarchyBuilder.length() > 0) hierarchyBuilder.append("-");
+                    hierarchyBuilder.append(qrCodeLogin.getDistrict());
+                }
+                if (qrCodeLogin.getStreet() != null) {
+                    if (hierarchyBuilder.length() > 0) hierarchyBuilder.append("-");
+                    hierarchyBuilder.append(qrCodeLogin.getStreet());
+                }
+                String hierarchy = hierarchyBuilder.toString();
+                
+                // 更新用户角色和层级信息
+                authService.updateUserRoleAndHierarchy(userId, qrCodeLogin.getRole(), hierarchy);
+                log.info("用户绑定角色和层级信息成功，userId: {}, role: {}, hierarchy: {}", userId, qrCodeLogin.getRole(), hierarchy);
+                result.put("roleBound", true);
+                result.put("role", qrCodeLogin.getRole());
+                result.put("hierarchy", hierarchy);
+                
+            } catch (Exception e) {
+                log.error("用户绑定角色和层级信息失败，userId: {}, role: {}", userId, qrCodeLogin.getRole(), e);
+                result.put("success", false);
+                result.put("message", "角色和层级信息绑定失败: " + e.getMessage());
+                return result;
+            }
+        } else {
+            result.put("roleBound", false);
+            result.put("success", false);
+            result.put("message", "二维码未包含角色信息");
+            return result;
+        }
+
+        // 更新二维码状态为已使用
+        int updateCount = qrCodeLoginMapper.confirmLogin(qrToken, userId, null, LocalDateTime.now());
+        
+        if (updateCount > 0) {
+            result.put("success", true);
+            result.put("message", "角色绑定成功");
+            log.info("二维码角色绑定确认成功，token: {}, userId: {}", qrToken, userId);
+        } else {
+            result.put("success", false);
+            result.put("message", "角色绑定失败");
         }
 
         return result;

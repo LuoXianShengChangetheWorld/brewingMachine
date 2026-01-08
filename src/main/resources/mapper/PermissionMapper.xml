@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brewingmachine.mapper.PermissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.brewingmachine.entity.Permission">
+        <id column="id" property="id"/>
+        <result column="permission_code" property="permissionCode"/>
+        <result column="permission_name" property="permissionName"/>
+        <result column="description" property="description"/>
+        <result column="url" property="url"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, permission_code, permission_name, description, url, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.brewingmachine.entity.Permission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO permission (permission_code, permission_name, description, url, status, create_time, update_time)
+        VALUES (#{permissionCode}, #{permissionName}, #{description}, #{url}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.brewingmachine.entity.Permission">
+        UPDATE permission
+        <set>
+            <if test="permissionCode != null">permission_code = #{permissionCode},</if>
+            <if test="permissionName != null">permission_name = #{permissionName},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM permission WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT <include refid="Base_Column_List"/>
+        FROM permission
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM permission
+        ORDER BY id
+    </select>
+
+    <!-- 由于数据库中没有role_permission表，暂时注释掉该方法 -->
+    <!-- <select id="selectByRoleId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT p.<include refid="Base_Column_List"/>
+        FROM permission p
+        JOIN role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id = #{roleId}
+    </select> -->
+
+</mapper>

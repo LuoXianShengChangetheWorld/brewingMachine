@@ -265,4 +265,100 @@ public class WeChatLoginService {
         JSONObject jsonObject = JSON.parseObject(response);
         return jsonObject.getInteger("errcode") == 0;
     }
+
+    /**
+     * 微信小程序登录处理
+     */
+    @Transactional
+    public WeChatLoginResultDTO handleMiniProgramLogin(String code) {
+        WeChatLoginResultDTO result = new WeChatLoginResultDTO();
+
+        try {
+            if (code == null || code.isEmpty()) {
+                result.setSuccess(false);
+                result.setMessage("授权失败：未获取到登录凭证");
+                return result;
+            }
+
+            // 1. 通过code获取openid和session_key
+            Map<String, String> sessionInfo = getSessionInfo(code);
+            if (sessionInfo == null || sessionInfo.get("errcode") != null) {
+                result.setSuccess(false);
+                result.setMessage("获取会话信息失败：" + sessionInfo.get("errmsg"));
+                return result;
+            }
+
+            String openid = sessionInfo.get("openid");
+            String sessionKey = sessionInfo.get("session_key");
+
+            // 2. 查找或创建用户
+            WeChatUser weChatUser = weChatUserMapper.findByOpenid(openid);
+            boolean isNewUser = false;
+
+            if (weChatUser == null) {
+                // 新用户，创建用户账号
+                User newUser = new User();
+                newUser.setUsername("wxmp_" + UUID.randomUUID().toString().substring(0, 8));
+                newUser.setStatus(1);
+                newUser.setCreateTime(LocalDateTime.now());
+                newUser.setUpdateTime(LocalDateTime.now());
+                userMapper.insert(newUser);
+
+                // 绑定微信账号
+                WeChatUser newWeChatUser = new WeChatUser();
+                newWeChatUser.setOpenid(openid);
+                newWeChatUser.setSessionKey(sessionKey);
+                newWeChatUser.setUserId(newUser.getId());
+                newWeChatUser.setBindTime(LocalDateTime.now());
+                newWeChatUser.setCreateTime(LocalDateTime.now());
+                newWeChatUser.setUpdateTime(LocalDateTime.now());
+                weChatUserMapper.insert(newWeChatUser);
+
+                weChatUser = newWeChatUser;
+                isNewUser = true;
+            } else {
+                // 老用户，更新session_key
+                weChatUser.setSessionKey(sessionKey);
+                weChatUser.setUpdateTime(LocalDateTime.now());
+                weChatUserMapper.updateByUserId(weChatUser.getUserId(), weChatUser);
+
+                // 更新最后登录时间
+                userMapper.updateLastLoginTime(weChatUser.getUserId(), LocalDateTime.now());
+            }
+
+            // 3. 生成登录token
+            String token = tokenService.generateToken(weChatUser.getUserId());
+
+            // 4. 返回结果
+            result.setSuccess(true);
+            result.setMessage("登录成功");
+            result.setToken(token);
+            result.setUserId(weChatUser.getUserId());
+            result.setIsNewUser(isNewUser);
+
+            log.info("微信小程序登录成功，openid: {}, userId: {}", openid, weChatUser.getUserId());
+            return result;
+
+        } catch (Exception e) {
+            log.error("微信小程序登录处理失败", e);
+            result.setSuccess(false);
+            result.setMessage("登录失败：" + e.getMessage());
+            return result;
+        }
+    }
+
+    /**
+     * 通过code获取小程序session信息
+     */
+    private Map<String, String> getSessionInfo(String code) {
+        String url = String.format("%s?appid=%s&secret=%s&js_code=%s&grant_type=%s",
+                WeChatConstants.JSCODE2SESSION_URL,
+                weChatConfig.getAppId(),
+                weChatConfig.getAppSecret(),
+                code,
+                WeChatConstants.GRAND_TYPE);
+
+        String response = HttpClientUtil.get(url);
+        return JSON.parseObject(response, Map.class);
+    }
 }

@@ -48,6 +48,16 @@ public class WeChatLoginController {
     }
 
     /**
+     * 微信小程序登录
+     */
+    @PostMapping("/mp/login")
+    public WeChatLoginResultDTO miniProgramLogin(@RequestBody Map<String, String> request) {
+        String code = request.get("code");
+        log.info("微信小程序登录，code: {}", code);
+        return weChatLoginService.handleMiniProgramLogin(code);
+    }
+
+    /**
      * 验证token
      */
     @GetMapping("/token/validate")

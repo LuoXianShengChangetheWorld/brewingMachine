@@ -15,6 +15,8 @@ public class WeChatUser {
 
     private String unionid;
 
+    private String sessionKey;
+
     private String nickname;
 
     private String avatar;

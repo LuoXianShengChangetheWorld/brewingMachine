@@ -15,9 +15,15 @@ public class WeChatConstants {
 
     public static final String CHECK_TOKEN_URL = BASE_URL + "/sns/auth";
 
+    // 小程序登录相关接口
+    public static final String JSCODE2SESSION_URL = BASE_URL + "/sns/jscode2session";
+
     public static final String DEFAULT_SCOPE = "snsapi_login";
 
     public static final String MP_SCOPE = "snsapi_userinfo";
+
+    // 小程序登录参数
+    public static final String GRAND_TYPE = "authorization_code";
 
     public static final int ACCESS_TOKEN_EXPIRE = 7200;
 

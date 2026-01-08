@@ -6,6 +6,7 @@
         <id column="id" property="id"/>
         <result column="openid" property="openid"/>
         <result column="unionid" property="unionid"/>
+        <result column="session_key" property="sessionKey"/>
         <result column="nickname" property="nickname"/>
         <result column="avatar" property="avatar"/>
         <result column="gender" property="gender"/>
@@ -20,14 +21,14 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, openid, unionid, nickname, avatar, gender, city, province, country, language, 
+        id, openid, unionid, session_key, nickname, avatar, gender, city, province, country, language, 
         user_id, bind_time, create_time, update_time
     </sql>
 
     <insert id="insert" parameterType="com.brewingmachine.entity.WeChatUser" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO wechat_user (openid, unionid, nickname, avatar, gender, city, province, country, 
+        INSERT INTO wechat_user (openid, unionid, session_key, nickname, avatar, gender, city, province, country, 
                                 language, user_id, bind_time, create_time, update_time)
-        VALUES (#{openid}, #{unionid}, #{nickname}, #{avatar}, #{gender}, #{city}, #{province}, #{country},
+        VALUES (#{openid}, #{unionid}, #{sessionKey}, #{nickname}, #{avatar}, #{gender}, #{city}, #{province}, #{country},
                 #{language}, #{userId}, #{bindTime}, #{createTime}, #{updateTime})
     </insert>
 
@@ -54,6 +55,7 @@
         <set>
             <if test="weChatUser.openid != null">openid = #{weChatUser.openid},</if>
             <if test="weChatUser.unionid != null">unionid = #{weChatUser.unionid},</if>
+            <if test="weChatUser.sessionKey != null">session_key = #{weChatUser.sessionKey},</if>
             <if test="weChatUser.nickname != null">nickname = #{weChatUser.nickname},</if>
             <if test="weChatUser.avatar != null">avatar = #{weChatUser.avatar},</if>
             <if test="weChatUser.gender != null">gender = #{weChatUser.gender},</if>
